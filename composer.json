@@ -1,0 +1,7 @@
+{
+    "name": "u_of_a",
+    "type": "drupal-module",
+    "description": "University of Arizona Module",
+    "homepage": "https://github.com/ziquid/u_of_a",
+    "minimum-stability": "dev",
+}
