@@ -1,0 +1,7 @@
+u_of_a.site-config:
+  path: '/admin/site-config'
+  defaults:
+    _controller: '\Drupal\u_of_a\Controller\SiteConfigController::siteConfigPage'
+    _title: 'Drupal Site Configuration'
+  requirements:
+    _permission: 'access site config'

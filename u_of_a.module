@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Contains u_of_a.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function u_of_a_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'system_site_information_settings') {
+
+    $site_config = \Drupal::config('system.site');
+    $login_message = $site_config->get('login_message') ?? '';
+
+    $form['login_message'] = [
+      '#type' => 'details',
+      '#title' => t('Login Message'),
+      '#open' => TRUE,
+      'login_message' => [
+        '#type' => 'textarea',
+        '#title' => t('Login Status Message'),
+        '#maxlength' => 640,
+        '#rows' => 5,
+        '#cols' => 80,
+        '#default_value' => $login_message,
+        '#description' => t('This message is shown when users login to this system.'),
+      ],
+    ];
+
+    $form['#submit'][] = 'u_of_a_submit_form';
+  }
+}
+
+/**
+ * Save the Login Message.
+ *
+ * @param array $form
+ *   The form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ */
+function u_of_a_submit_form(array &$form, FormStateInterface $form_state) {
+  \Drupal::configFactory()->getEditable('system.site')
+    ->set('login_message', $form_state->getValue('login_message'))
+    ->save();
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function u_of_a_user_login(UserInterface $account) {
+  $site_config = \Drupal::config('system.site');
+  $login_message = $site_config->get('login_message') ?? '';
+
+  if (strlen($login_message)) {
+    $login_link = Link::createFromRoute($login_message, 'u_of_a.site-config');
+    \Drupal::messenger()->addStatus($login_link);
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function u_of_a_theme($existing, $type, $theme, $path) {
+
+  // @todo: regen these/clear cache when the settings change.
+
+  $config = \Drupal::config('system.site');
+  $site_name = $config->get('name') ?? '';
+  $config = \Drupal::config('system.date');
+  $timezone = $config->get('timezone.default') ?? '';
+  $users = \Drupal::entityQuery('user')->count()->execute();
+
+  return [
+    'site_config' => [
+      'variables' => [
+        'timezone' => $timezone,
+        'site_name' => $site_name,
+        'user_accounts' => $users,
+      ],
+    ],
+  ];
+}

@@ -1,0 +1,7 @@
+name: 'U of A'
+type: module
+description: 'University of Arizona Module'
+core_version_requirement: ^8.8.0 || ^9.0
+package: 'Custom'
+dependencies:
+  - drupal:system
